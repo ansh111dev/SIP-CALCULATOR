@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market SIP Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #00b09b, #96c93d); /* Gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Adding rupee symbols to the background */
+        .background-money-rupee {
+            position: absolute;
+            left: -50px;
+            width: 50px;
+            opacity: 0.1;
+            animation: moveMoneyRupee 5s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes moveMoneyRupee {
+            0% {
+                top: -50px;
+                left: 0;
+            }
+            100% {
+                top: 100vh;
+                left: calc(50% + 100px);
+            }
+        }
+
+        /* Additional rupee animations with increasing frequency */
+        .background-money-rupee:nth-child(2) {
+            animation: moveMoneyRupee 4s linear infinite;
+            left: 10%;
+            width: 60px;
+        }
+
+        .background-money-rupee:nth-child(3) {
+            animation: moveMoneyRupee 3s linear infinite;
+            left: 20%;
+            width: 70px;
+        }
+
+        .background-money-rupee:nth-child(4) {
+            animation: moveMoneyRupee 2s linear infinite;
+            left: 30%;
+            width: 80px;
+        }
+
+        /* Styling the SIP container */
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+            z-index: 1; /* Ensure content appears above background images */
+        }
+
+        h2 {
+            color: #FF6347; /* Bright Tomato color for heading */
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #FF6347; /* Highlight input and select on focus */
+            box-shadow: 0 0 5px rgba(255, 99, 71, 0.5); /* Add a soft glow effect */
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #FF6347; /* Tomato color for button */
+            color: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #FF4500; /* Darker Tomato color on hover */
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+
+        /* Adding subtle hover effect for the labels */
+        label:hover {
+            color: #FF6347;
+            cursor: pointer;
+        }
+
+        /* Bold message styling */
+        .bold-message {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2e7d32; /* Dark green color */
+            margin-top: 20px;
+            text-transform: uppercase; /* Capitalize bold text */
+        }
+
+        /* Make all labels uppercase as well */
+        label {
+            text-transform: uppercase;
+        }
+
+        /* Make all result headings uppercase */
+        .result p strong {
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Rupee symbols falling in the background -->
+    <img class="background-money-rupee" src="https://img.icons8.com/ios/452/rupee.png" alt="Rupee Icon">
+    <img class="background-money-rupee" src="https://img.icons8.com/ios/452/rupee.png" alt="Rupee Icon">
+    <img class="background-money-rupee" src="https://img.icons8.com/ios/452/rupee.png" alt="Rupee Icon">
+    <img class="background-money-rupee" src="https://img.icons8.com/ios/452/rupee.png" alt="Rupee Icon">
+    <img class="background-money-rupee" src="https://img.icons8.com/ios/452/rupee.png" alt="Rupee Icon">
+
+    <div class="container">
+        <h2>Stock Market SIP Calculator</h2>
+        
+        <!-- Input fields for SIP calculator -->
+        <label for="amount">Monthly Investment Amount (₹):</label>
+        <input type="number" id="amount" placeholder="Enter amount" required>
+
+        <label for="timeChoice">Select Time Unit:</label>
+        <select id="timeChoice" onchange="toggleTimeUnitInput()">
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+        </select>
+
+        <label for="duration">Investment Duration:</label>
+        <input type="number" id="duration" placeholder="Enter duration" required>
+
+        <label for="rate">Expected Annual Return Rate (%):</label>
+        <input type="number" id="rate" placeholder="Enter expected annual return rate" required>
+
+        <button onclick="calculateSIP()">Calculate SIP Returns</button>
+
+        <div class="result" id="result"></div>
+
+        <!-- Bold message below result -->
+        <div class="bold-message">
+            I hope your money increases at the best speed and to maximum value!
+        </div>
+    </div>
+
+    <script>
+        // This function will be called when the user changes the time unit option (Months/Years)
+        function toggleTimeUnitInput() {
+            let timeChoice = document.getElementById('timeChoice').value;
+            let durationInput = document.getElementById('duration');
+            if (timeChoice === "years") {
+                durationInput.placeholder = "Enter number of years";
+            } else {
+                durationInput.placeholder = "Enter number of months";
+            }
+        }
+
+        // This function will calculate the SIP return based on the inputs
+        function calculateSIP() {
+            // Get input values
+            let amount = parseFloat(document.getElementById('amount').value);
+            let duration = parseFloat(document.getElementById('duration').value);
+            let timeChoice = document.getElementById('timeChoice').value;
+            let rate = parseFloat(document.getElementById('rate').value);
+
+            // Validate inputs
+            if (isNaN(amount) || isNaN(duration) || isNaN(rate) || amount <= 0 || duration <= 0 || rate <= 0) {
+                document.getElementById('result').innerHTML = 'Please enter valid values for all fields.';
+                return;
+            }
+
+            // Convert duration to months if the user chose years
+            if (timeChoice === "years") {
+                duration = duration * 12;  // Convert years to months
+            }
+
+            // Monthly interest rate calculation (annual rate divided by 12)
+            let monthlyRate = (rate / 100) / 12;
+
+            // SIP formula for monthly compounding
+            let totalAmount = 0;
+            totalAmount = amount * (((Math.pow(1 + monthlyRate, duration)) - 1) / monthlyRate) * (1 + monthlyRate);
+
+            let totalInvested = amount * duration;
+            let totalReturn = totalAmount - totalInvested;
+
+            // Display results with improved styling
+            document.getElementById('result').innerHTML = `
+                <p><strong>Total Invested: ₹${totalInvested.toFixed(2)}</strong></p>
+                <p><strong>Total Return: ₹${totalReturn.toFixed(2)}</strong></p>
+                <p><strong>Total Value of Investment: ₹${totalAmount.toFixed(2)}</strong></p>
+            `;
+        }
+    </script>
+
+</body>
+</html>
